@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/toonify.png" alt="Toonify Logo" width="400">
+</p>
+
 # TOON (Token-Oriented Object Notation)
 
 [English](README.md) | [中文](README.zh-CN.md)
