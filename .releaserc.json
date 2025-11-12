@@ -28,7 +28,7 @@
     [
       "semantic-release-pypi",
       {
-        "distDir": "dist/"
+        "distDir": "dist"
       }
     ],
     [
