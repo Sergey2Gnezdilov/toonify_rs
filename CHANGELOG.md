@@ -1,3 +1,10 @@
+## [1.1.0](https://github.com/ScrapeGraphAI/toonify/compare/v1.0.1...v1.1.0) (2025-11-12)
+
+
+### Features
+
+* add files ([1716141](https://github.com/ScrapeGraphAI/toonify/commit/1716141ae8fc73895ff19d4cd0178ea5bcc2538f))
+
 ## [1.0.1](https://github.com/ScrapeGraphAI/toonify/compare/v1.0.0...v1.0.1) (2025-11-12)
 
 
