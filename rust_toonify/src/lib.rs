@@ -34,6 +34,12 @@ pub enum ToonError {
     TypeError(String),
 }
 
+impl From<std::fmt::Error> for ToonError {
+    fn from(err: std::fmt::Error) -> Self {
+        ToonError::Serialization(err.to_string())
+    }
+}
+
 /// PyO3 Result type
 type PyResult<T> = Result<T, PyErr>;
 
@@ -102,7 +108,7 @@ fn toon_value_to_py(py: Python<'_>, value: ToonValue) -> PyResult<PyObject> {
 
 /// Encode a Python object to TOON format
 #[pyfunction]
-fn encode(py: Python, obj: &PyAny) -> PyResult<String> {
+fn encode(_py: Python, obj: &PyAny) -> PyResult<String> {
     let toon_value = py_to_toon_value(obj)?;
     encoder::encode(&toon_value).map_err(|e| {
         PyErr::new::<pyo3::exceptions::PyValueError, _>(
@@ -138,13 +144,14 @@ fn toonify_rs(_py: Python, m: &PyModule) -> PyResult<()> {
 mod tests {
     use super::*;
     use pyo3::types::IntoPyDict;
+    use pyo3::IntoPy;
     
     #[test]
     fn test_py_to_toon_value() -> PyResult<()> {
         Python::with_gil(|py| {
             // Test None
             let none = py.None();
-            assert_eq!(py_to_toon_value(none)?, ToonValue::Null);
+            assert_eq!(py_to_toon_value(none.as_ref(py))?, ToonValue::Null);
             
             // Test bool
             let py_true = true.to_object(py);
@@ -176,13 +183,14 @@ mod tests {
             
             // Test dict
             let py_dict = [("a", 1), ("b", 2)].into_py_dict(py);
+            let py_dict_obj: Py<PyDict> = py_dict.into_py(py);
             let expected = {
                 let mut map = std::collections::HashMap::new();
                 map.insert("a".to_string(), ToonValue::Number(1.0));
                 map.insert("b".to_string(), ToonValue::Number(2.0));
                 ToonValue::Object(map)
             };
-            assert_eq!(py_to_toon_value(py_dict.into())?, expected);
+            assert_eq!(py_to_toon_value(py_dict_obj.as_ref(py))?, expected);
             
             Ok(())
         })

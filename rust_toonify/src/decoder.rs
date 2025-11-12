@@ -102,10 +102,10 @@ impl<'a> Parser<'a> {
             let key = match self.current {
                 Some('"') => self.parse_string()?,
                 Some(c) if utils::is_ident_start(c) => self.parse_identifier()?,
-                Some(c) => {
+                Some(ch) => {
                     return Err(ToonError::InvalidFormat(format!(
-                        "Expected string or identifier at line {}, column {}",
-                        self.line, self.col
+                        "Expected string or identifier at line {}, column {}, found '{}'",
+                        self.line, self.col, ch
                     )));
                 }
                 None => {
@@ -230,7 +230,7 @@ impl<'a> Parser<'a> {
                         Some('u') => {
                             // Parse unicode escape sequence \uXXXX
                             self.next(); // Skip 'u'
-                            let hex: String = self.take(4).collect();
+                            let hex = self.take_chars(4);
                             if hex.len() != 4 {
                                 return Err(ToonError::InvalidFormat(
                                     "Invalid unicode escape sequence".to_string(),
@@ -366,7 +366,7 @@ impl<'a> Parser<'a> {
         keyword: &str,
         value: ToonValue,
     ) -> Result<ToonValue, ToonError> {
-        let s: String = self.take(keyword.len()).collect();
+        let s = self.take_chars(keyword.len());
         
         if s == keyword {
             Ok(value)
@@ -414,19 +414,18 @@ impl<'a> Parser<'a> {
         }
     }
     
-    /// Take the next n characters
-    fn take(&mut self, n: usize) -> impl Iterator<Item = char> + '_ {
-        std::iter::from_fn(move || {
-            if n == 0 {
-                None
+    /// Take the next `count` characters as a `String`
+    fn take_chars(&mut self, count: usize) -> String {
+        let mut buf = String::with_capacity(count);
+        for _ in 0..count {
+            if let Some(c) = self.current {
+                buf.push(c);
+                self.next();
             } else {
-                let c = self.current;
-                if c.is_some() {
-                    self.next();
-                }
-                c
+                break;
             }
-        })
+        }
+        buf
     }
 }
 
@@ -480,7 +479,7 @@ mod tests {
         expected.insert("b".to_string(), ToonValue::Number(2.0));
         
         let result = decode("{\"a\": 1, \"b\": 2}").unwrap();
-        assert_eq!(result, ToonValue::Object(expected));
+        assert_eq!(result, ToonValue::Object(expected.clone()));
         
         // Test with unquoted keys
         let result = decode("{a: 1, b: 2}").unwrap();

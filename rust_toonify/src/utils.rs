@@ -1,14 +1,6 @@
 //! Utility functions for the TOON format implementation
 
-use std::fmt;
-
-/// Check if a character needs to be escaped in a TOON string
-pub(crate) fn needs_escape(c: char) -> bool {
-    matches!(
-        c,
-        '\' | '"' | '\n' | '\r' | '\t' | '\0' | '\x08' | '\x0c'
-    )
-}
+use std::fmt::Write;
 
 /// Escape a string for use in TOON format
 pub(crate) fn escape_str(s: &str) -> String {
@@ -94,11 +86,6 @@ pub(crate) fn unescape_str(s: &str) -> Result<String, String> {
     Ok(result)
 }
 
-/// Check if a character is whitespace in TOON format
-pub(crate) fn is_whitespace(c: char) -> bool {
-    matches!(c, ' ' | '\t' | '\n' | '\r')
-}
-
 /// Check if a character is a valid start of a TOON identifier
 pub(crate) fn is_ident_start(c: char) -> bool {
     c.is_alphabetic() || c == '_'
@@ -107,20 +94,6 @@ pub(crate) fn is_ident_start(c: char) -> bool {
 /// Check if a character is a valid part of a TOON identifier
 pub(crate) fn is_ident_continue(c: char) -> bool {
     c.is_alphanumeric() || c == '_' || c == '-' || c == '.'
-}
-
-/// Check if a string is a valid TOON identifier
-pub(crate) fn is_valid_ident(s: &str) -> bool {
-    if s.is_empty() {
-        return false;
-    }
-    
-    let mut chars = s.chars();
-    if !is_ident_start(chars.next().unwrap()) {
-        return false;
-    }
-    
-    chars.all(is_ident_continue)
 }
 
 /// Format a number as a string, removing unnecessary decimal places

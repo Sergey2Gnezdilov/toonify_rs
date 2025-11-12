@@ -9,3 +9,50 @@ __pycache__
 *.pywz
 *.pyzw
 *.pyzwz
+
+# ============================================
+# Rust / Cargo ignores
+# ============================================
+
+# Binaries and build artifacts
+/target/
+**/target/
+Cargo.lock
+Cargo.lock.old
+*.rlib
+*.rmeta
+*.dSYM/
+*.so
+*.dll
+*.dylib
+*.exe
+
+# Rust tool fingerprints and debug metadata
+**/.fingerprint/
+**/*.json
+**/*.timestamp
+
+# Intermediate build cache
+*.crate
+/.rustc_info.json
+**/CACHEDIR.TAG
+
+# ============================================
+# IDE / Editor ignores
+# ============================================
+
+# VS Code
+.vscode/
+.history/
+.settings/
+
+# JetBrains / CLion / PyCharm
+.idea/
+*.iml
+
+# ============================================
+# OS-specific
+# ============================================
+
+.DS_Store
+Thumbs.db

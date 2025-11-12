@@ -1,6 +1,6 @@
 //! TOON format encoder
 
-use std::fmt::{self, Write};
+use std::fmt::Write;
 use std::collections::HashMap;
 
 use crate::types::{ToonValue, EncodeOptions};
@@ -35,19 +35,21 @@ fn encode_value<W: Write>(
     in_array: bool,
 ) -> Result<(), ToonError> {
     match value {
-        ToonValue::Null => write!(output, "null"),
-        ToonValue::Bool(b) => write!(output, "{}", b),
-        ToonValue::Number(n) => write!(output, "{}", format_number(*n)),
+        ToonValue::Null => write!(output, "null")?,
+        ToonValue::Bool(b) => write!(output, "{}", b)?,
+        ToonValue::Number(n) => write!(output, "{}", format_number(*n))?,
         ToonValue::String(s) => {
             if utils::needs_quotes(s) {
-                write!(output, "\"{}\"", escape_str(s))
+                write!(output, "\"{}\"", escape_str(s))?
             } else {
-                write!(output, "{}", s)
+                write!(output, "{}", s)?
             }
-        },
-        ToonValue::Array(arr) => encode_array(arr, level, options, output, in_array),
-        ToonValue::Object(obj) => encode_object(obj, level, options, output, in_array),
-    }.map_err(|e| ToonError::Serialization(e.to_string()))
+        }
+        ToonValue::Array(arr) => encode_array(arr, level, options, output, in_array)?,
+        ToonValue::Object(obj) => encode_object(obj, level, options, output, in_array)?,
+    }
+
+    Ok(())
 }
 
 fn encode_array<W: Write>(
@@ -131,8 +133,6 @@ fn encode_object<W: Write>(
     }
     
     let indent = " ".repeat(level * options.indent);
-    let inner_indent = " ".repeat((level + 1) * options.indent);
-    
     if in_array || level > 0 {
         // Inline object
         write!(output, "{{")?;
